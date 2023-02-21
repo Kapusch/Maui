@@ -539,22 +539,20 @@ public partial class MediaManager : IDisposable
 			return;
 		}
 
-		if (MediaElement.ShouldLoopPlayback)
+		try
 		{
-			PlayerViewController?.Player?.Seek(CMTime.Zero);
-			Player.Play();
+			DispatchQueue.MainQueue.DispatchAsync(MediaElement.MediaEnded);
+
+			if (MediaElement.ShouldLoopPlayback)
+			{
+				PlayerViewController?.Player?.Seek(CMTime.Zero);
+				Player.Play();
+			}
 		}
-		else
+		catch (Exception e)
 		{
-			try
-			{
-				DispatchQueue.MainQueue.DispatchAsync(MediaElement.MediaEnded);
-			}
-			catch (Exception e)
-			{
-				Logger?.LogWarning(e, "{logMessage}",
-					$"Failed to play media to end.");
-			}
+			Logger?.LogWarning(e, "{logMessage}",
+				$"Failed to play media to end.");
 		}
 	}
 
